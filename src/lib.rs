@@ -62,3 +62,65 @@ impl<R: Register> RBR_THR<R> {
         unsafe { self.0.get().write_volatile(val.into()) }
     }
 }
+
+impl<R: Register> Uart16550<R> {
+    #[inline]
+    pub fn rbr_thr(&self) -> &RBR_THR<R> {
+        &self.rbr_thr
+    }
+
+    #[inline]
+    pub fn ier(&self) -> &IER<R> {
+        &self.ier
+    }
+
+    #[inline]
+    pub fn iir_fcr(&self) -> &IIR_FCR<R> {
+        &self.iir_fcr
+    }
+
+    #[inline]
+    pub fn lcr(&self) -> &LCR<R> {
+        &self.lcr
+    }
+
+    #[inline]
+    pub fn mcr(&self) -> &MCR<R> {
+        &self.mcr
+    }
+
+    #[inline]
+    pub fn lsr(&self) -> &LSR<R> {
+        &self.lsr
+    }
+
+    pub fn msr(&self) -> &MSR<R> {
+        &self.msr
+    }
+
+    pub fn read(&self, buf: &mut [u8]) -> usize {
+        let mut count = 0usize;
+        for c in buf {
+            if self.lsr.read().is_data_ready() {
+                *c = self.rbr_thr.rx_data();
+                count += 1;
+            } else {
+                break;
+            }
+        }
+        return count;
+    }
+
+    pub fn write(&self, buf: &[u8]) -> usize {
+        let mut count = 0usize;
+        for c in buf {
+            if self.lsr.read().is_transmitter_fifo_empty() {
+                self.rbr_thr.tx_data(*c);
+                count += 1;
+            } else {
+                break;
+            }
+        }
+        return count;
+    }
+}
