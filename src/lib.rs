@@ -15,7 +15,7 @@ use core::cell::UnsafeCell;
 pub use fcr::{FifoStatus, TriggerLevel};
 pub use ier::InterruptTypes;
 pub use iir::{InterruptIdentification, PendingInterrupt};
-pub use lcr::LineControl;
+pub use lcr::{CharLen, LineControl, PARITY};
 pub use lsr::LineStatus;
 pub use mcr::ModemControl;
 pub use msr::ModemStatus;

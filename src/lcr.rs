@@ -15,10 +15,11 @@ impl<R: Register> LCR<R> {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct LineControl(u8);
 
+#[repr(u8)]
 pub enum PARITY {
-    NONE,
-    EVEN,
-    ODD,
+    NONE = 0b00 << 3,
+    EVEN = 0b10 << 3,
+    ODD = 0b11 << 3,
 }
 
 #[repr(u8)]
@@ -42,8 +43,6 @@ impl LineControl {
     const DLAB: u8 = 1 << 7;
     const BREAK_CTRL_EN: u8 = 1 << 6;
     const STICK_PARITY_EN: u8 = 1 << 5;
-    const EVEN_PARITY_SEL: u8 = 1 << 4;
-    const PARITY_EN: u8 = 1 << 3;
     const STOP_BIT_SEL: u8 = 1 << 2;
 
     #[inline]
@@ -93,19 +92,16 @@ impl LineControl {
 
     #[inline]
     pub const fn set_parity(self, sel: PARITY) -> Self {
-        match sel {
-            PARITY::NONE => return Self(self.0 & !Self::PARITY_EN & !Self::EVEN_PARITY_SEL),
-            PARITY::ODD => return Self((self.0 | Self::PARITY_EN) & !Self::EVEN_PARITY_SEL),
-            PARITY::EVEN => return Self(self.0 | Self::PARITY_EN | Self::EVEN_PARITY_SEL),
-        }
+        Self((self.0 & !(0b11 << 3)) | sel as u8)
     }
 
     #[inline]
-    pub const fn get_parity(self) -> PARITY {
-        const ALL: u8 = LineControl::PARITY_EN | LineControl::EVEN_PARITY_SEL;
-        match self.0 & ALL {
-            Self::PARITY_EN => PARITY::ODD,
-            ALL => PARITY::EVEN,
+    pub const fn parity(self) -> PARITY {
+        const EVEN: u8 = PARITY::EVEN as _;
+        const ODD: u8 = PARITY::ODD as _;
+        match self.0 & (0b11 << 3) {
+            EVEN => PARITY::EVEN,
+            ODD => PARITY::ODD,
             _ => PARITY::NONE,
         }
     }
@@ -120,7 +116,7 @@ impl LineControl {
     }
 
     #[inline]
-    pub const fn get_one_stop_bit(self) -> bool {
+    pub const fn is_one_stop_bit(self) -> bool {
         self.0 & Self::STOP_BIT_SEL != Self::STOP_BIT_SEL
     }
 
