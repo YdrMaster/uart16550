@@ -3,8 +3,8 @@
 impl<R: Register> IER<R> {
     /// 写入中断使能设置。
     #[inline]
-    pub fn write(&self, interrupts: InterruptTypes) {
-        unsafe { self.0.get().write_volatile(R::from(interrupts.0)) }
+    pub fn write(&self, val: InterruptTypes) {
+        unsafe { self.0.get().write_volatile(R::from(val.0)) }
     }
 
     /// 读取中断使能设置。

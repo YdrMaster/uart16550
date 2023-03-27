@@ -3,8 +3,8 @@
 impl<R: Register> LCR<R> {
     /// 写入线控制设置。
     #[inline]
-    pub fn write(&self, interrupts: LineControl) {
-        unsafe { self.0.get().write_volatile(R::from(interrupts.0)) }
+    pub fn write(&self, val: LineControl) {
+        unsafe { self.0.get().write_volatile(R::from(val.0)) }
     }
 
     /// 读取线控制设置。
@@ -58,21 +58,19 @@ impl LineControl {
     const STICK_PARITY_EN: u8 = 1 << 5;
     const STOP_BIT_SEL: u8 = 1 << 2;
 
-    /// 使能访问分频控制寄存器。
+    /// 使能访问分频锁存器。
     #[inline]
-    #[allow(unused)]
     pub(crate) const fn enable_dlr_access(self) -> Self {
         Self(self.0 | Self::DLAB)
     }
 
-    /// 禁止访问分频控制寄存器。
+    /// 禁止访问分频锁存器。
     #[inline]
-    #[allow(unused)]
-    pub(crate) const fn disable_dlr_access(self) -> Self {
+    pub const fn disable_dlr_access(self) -> Self {
         Self(self.0 & !Self::DLAB)
     }
 
-    /// 是否允许访问分频控制寄存器。
+    /// 是否允许访问分频锁存器。
     #[inline]
     pub const fn dlr_access_enabled(self) -> bool {
         self.0 & Self::DLAB == Self::DLAB

@@ -1,4 +1,4 @@
-//! uart16550
+//! Provide definition of 16550 uart registers.
 
 #![no_std]
 #![deny(warnings, missing_docs)]
@@ -122,6 +122,17 @@ impl<R: Register> Uart16550<R> {
     #[inline]
     pub fn msr(&self) -> &MSR<R> {
         &self.msr
+    }
+
+    /// 将分频系数写入锁存器。
+    pub fn write_divisor(&self, divisor: u16) {
+        let lcr = self.lcr.read();
+        self.lcr.write(lcr.enable_dlr_access());
+        unsafe {
+            self.rbr_thr.0.get().write(R::from(divisor as _));
+            self.ier.0.get().write(R::from((divisor >> 8) as _));
+        }
+        self.lcr.write(lcr);
     }
 
     /// 从接收队列读取字符到 `buf`，返回读取的字符数。
