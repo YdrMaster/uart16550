@@ -108,6 +108,7 @@ impl<R: Register> Uart16550<R> {
         &self.lsr
     }
 
+    #[inline]
     pub fn msr(&self) -> &MSR<R> {
         &self.msr
     }

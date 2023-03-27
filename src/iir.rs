@@ -18,14 +18,15 @@ pub enum PendingInterrupt {
 }
 
 impl InterruptIdentification {
+    #[inline]
     pub const fn pending_interrupts(&self) -> Option<(PendingInterrupt, bool)> {
         if self.0 & 1 == 1 {
             Some((
                 match self.0 & 0b0110 {
-                    0b11 => PendingInterrupt::ReceiverLineStatus,
-                    0b10 => PendingInterrupt::ReceivedDataAvailable,
-                    0b01 => PendingInterrupt::TransmitterHoldingRegisterEmpty,
-                    0b00 => PendingInterrupt::ModemStatus,
+                    0b0110 => PendingInterrupt::ReceiverLineStatus,
+                    0b0100 => PendingInterrupt::ReceivedDataAvailable,
+                    0b0010 => PendingInterrupt::TransmitterHoldingRegisterEmpty,
+                    0b0000 => PendingInterrupt::ModemStatus,
                     _ => unreachable!(),
                 },
                 self.0 & 0b1000 == 0b1000,
