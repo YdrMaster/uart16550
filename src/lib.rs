@@ -49,25 +49,32 @@ impl Register for u32 {
 
 /// 接收缓冲寄存器和发送保持寄存器。
 #[allow(non_camel_case_types)]
+#[repr(transparent)]
 pub struct RBR_THR<R: Register>(UnsafeCell<R>);
 
 /// 中断使能寄存器。
+#[repr(transparent)]
 pub struct IER<R: Register>(UnsafeCell<R>);
 
 /// 中断识别寄存器和队列控制寄存器。
 #[allow(non_camel_case_types)]
+#[repr(transparent)]
 pub struct IIR_FCR<R: Register>(UnsafeCell<R>);
 
 /// 线路控制寄存器。
+#[repr(transparent)]
 pub struct LCR<R: Register>(UnsafeCell<R>);
 
 /// 调制解调器控制寄存器。
+#[repr(transparent)]
 pub struct MCR<R: Register>(UnsafeCell<R>);
 
 /// 线路状态寄存器。
+#[repr(transparent)]
 pub struct LSR<R: Register>(UnsafeCell<R>);
 
 /// 调制解调器状态寄存器。
+#[repr(transparent)]
 pub struct MSR<R: Register>(UnsafeCell<R>);
 
 /// 工作状态的 uart16550 数据结构。

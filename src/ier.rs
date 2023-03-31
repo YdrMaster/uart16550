@@ -16,6 +16,7 @@ impl<R: Register> IER<R> {
 
 /// 中断使能设置。
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
+#[repr(transparent)]
 pub struct InterruptTypes(u8);
 
 impl InterruptTypes {

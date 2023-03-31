@@ -10,6 +10,7 @@ impl<R: Register> IIR_FCR<R> {
 
 /// 队列控制设置。
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
+#[repr(transparent)]
 pub struct FifoControl(u8);
 
 /// 接收队列触发阈值。

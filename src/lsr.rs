@@ -10,6 +10,7 @@ impl<R: Register> LSR<R> {
 
 /// 线路状态。
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
+#[repr(transparent)]
 pub struct LineStatus(u8);
 
 impl LineStatus {

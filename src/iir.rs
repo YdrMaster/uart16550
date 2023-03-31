@@ -10,6 +10,7 @@ impl<R: Register> IIR_FCR<R> {
 
 /// 中断识别位。
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(transparent)]
 pub struct InterruptIdentification(u8);
 
 /// 挂起中断类型。

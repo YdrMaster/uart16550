@@ -16,6 +16,7 @@ impl<R: Register> LCR<R> {
 
 /// 线控制设置。
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(transparent)]
 pub struct LineControl(u8);
 
 /// 奇偶校验方式。
