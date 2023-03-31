@@ -71,6 +71,7 @@ pub struct LSR<R: Register>(UnsafeCell<R>);
 pub struct MSR<R: Register>(UnsafeCell<R>);
 
 /// 工作状态的 uart16550 数据结构。
+#[repr(C)]
 pub struct Uart16550<R: Register> {
     rbr_thr: RBR_THR<R>, // offset = 0(0x00)
     ier: IER<R>,         // offset = 1(0x04)
@@ -146,7 +147,7 @@ impl<R: Register> Uart16550<R> {
                 break;
             }
         }
-        return count;
+        count
     }
 
     /// 从 `buf` 写入字符到发送队列，返回写入的字符数。
@@ -160,6 +161,6 @@ impl<R: Register> Uart16550<R> {
                 break;
             }
         }
-        return count;
+        count
     }
 }
