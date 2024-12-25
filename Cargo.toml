@@ -13,3 +13,5 @@ categories = ["embedded", "hardware-support", "no-std"]
 
 [dependencies]
 embedded-io = "0.6.1"
+embedded-hal-nb = "1.0.0"
+nb = "1.1.0"
