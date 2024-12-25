@@ -145,29 +145,69 @@ impl<R: Register> Uart16550<R> {
 
     /// 从接收队列读取字符到 `buf`，返回读取的字符数。
     pub fn read(&self, buf: &mut [u8]) -> usize {
-        let mut count = 0usize;
-        for c in buf {
-            if self.lsr.read().is_data_ready() {
-                *c = self.rbr_thr.rx_data();
-                count += 1;
-            } else {
-                break;
-            }
-        }
-        count
+        blocking_read(self, buf)
     }
 
     /// 从 `buf` 写入字符到发送队列，返回写入的字符数。
     pub fn write(&self, buf: &[u8]) -> usize {
-        let mut count = 0usize;
-        for c in buf {
-            if self.lsr.read().is_transmitter_fifo_empty() {
-                self.rbr_thr.tx_data(*c);
-                count += 1;
-            } else {
-                break;
-            }
+        blocking_write(self, buf)
+    }
+}
+
+#[inline]
+fn blocking_read<R: Register>(uart: &Uart16550<R>, buf: &mut [u8]) -> usize {
+    let mut count = 0usize;
+    for c in buf {
+        if uart.lsr.read().is_data_ready() {
+            *c = uart.rbr_thr.rx_data();
+            count += 1;
+        } else {
+            break;
         }
-        count
+    }
+    count
+}
+
+#[inline]
+fn blocking_write<R: Register>(uart: &Uart16550<R>, buf: &[u8]) -> usize {
+    let mut count = 0usize;
+    for c in buf {
+        if uart.lsr.read().is_transmitter_fifo_empty() {
+            uart.rbr_thr.tx_data(*c);
+            count += 1;
+        } else {
+            break;
+        }
+    }
+    count
+}
+
+#[inline]
+fn blocking_flush<R: Register>(uart: &Uart16550<R>) {
+    while !uart.lsr.read().is_transmitter_empty() {
+        core::hint::spin_loop();
+    }
+}
+
+impl<R: Register> embedded_io::ErrorType for Uart16550<R> {
+    type Error = core::convert::Infallible;
+}
+
+impl<R: Register> embedded_io::Read for Uart16550<R> {
+    #[inline]
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::Error> {
+        Ok(blocking_read(self, buf))
+    }
+}
+
+impl<R: Register> embedded_io::Write for Uart16550<R> {
+    #[inline]
+    fn write(&mut self, buf: &[u8]) -> Result<usize, Self::Error> {
+        Ok(blocking_write(self, buf))
+    }
+
+    #[inline]
+    fn flush(&mut self) -> Result<(), Self::Error> {
+        Ok(blocking_flush(self))
     }
 }

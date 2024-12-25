@@ -10,3 +10,6 @@ license = "MulanPSL-2.0 OR MIT"
 readme = "README.md"
 keywords = ["uart"]
 categories = ["embedded", "hardware-support", "no-std"]
+
+[dependencies]
+embedded-io = "0.6.1"
