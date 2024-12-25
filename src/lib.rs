@@ -12,6 +12,8 @@ mod mcr;
 mod msr;
 mod rbr_thr;
 
+mod traits;
+
 use core::cell::UnsafeCell;
 
 pub use fcr::{FifoControl, TriggerLevel};
@@ -145,29 +147,44 @@ impl<R: Register> Uart16550<R> {
 
     /// 从接收队列读取字符到 `buf`，返回读取的字符数。
     pub fn read(&self, buf: &mut [u8]) -> usize {
-        let mut count = 0usize;
-        for c in buf {
-            if self.lsr.read().is_data_ready() {
-                *c = self.rbr_thr.rx_data();
-                count += 1;
-            } else {
-                break;
-            }
-        }
-        count
+        blocking_read(self, buf)
     }
 
     /// 从 `buf` 写入字符到发送队列，返回写入的字符数。
     pub fn write(&self, buf: &[u8]) -> usize {
-        let mut count = 0usize;
-        for c in buf {
-            if self.lsr.read().is_transmitter_fifo_empty() {
-                self.rbr_thr.tx_data(*c);
-                count += 1;
-            } else {
-                break;
-            }
-        }
-        count
+        blocking_write(self, buf)
     }
+}
+
+#[inline]
+fn blocking_read<R: Register>(uart: &Uart16550<R>, buf: &mut [u8]) -> usize {
+    let mut count = 0usize;
+    for c in buf {
+        if uart.lsr.read().is_data_ready() {
+            *c = uart.rbr_thr.rx_data();
+            count += 1;
+        } else {
+            break;
+        }
+    }
+    count
+}
+
+#[inline]
+fn blocking_write<R: Register>(uart: &Uart16550<R>, buf: &[u8]) -> usize {
+    let mut count = 0usize;
+    for c in buf {
+        if uart.lsr.read().is_transmitter_fifo_empty() {
+            uart.rbr_thr.tx_data(*c);
+            count += 1;
+        } else {
+            break;
+        }
+    }
+    count
+}
+
+#[inline]
+fn is_transfer_complete<R: Register>(uart: &Uart16550<R>) -> bool {
+    uart.lsr.read().is_transmitter_empty()
 }
